@@ -26,7 +26,9 @@ void generate_clear(Map &map) {
 
 
 void generate_rooms(Map &map, std::vector<Room> &rooms) {
-    for (int i = 0; i < 20; ++i) {
+    const int roomCount = map.width() / 2;
+
+    for (int i = 0; i < roomCount; ++i) {
         int startX = 2 * (rand() % (map.width() / 2));
         int startY = 2 * (rand() % (map.height() / 2));
         int w = 2 * (2 + rand() % 2);
