@@ -207,4 +207,15 @@ void makeMap(Map &map, Actor *player) {
         map.tile(maxX,maxY,tileUp);
         map.setActor(player, startX, startY);
     } while (map.coverage() < 35);
+
+    for (int i = 0; i < 10; ++i) {
+        int x, y;
+        do {
+            x = rand() % map.width();
+            y = rand() % map.height();
+        } while (map.tile(x,y) != tileFloor || map.getActor(x,y));
+
+        Actor *mob = new Actor(1);
+        map.setActor(mob, x, y);
+    }
 }

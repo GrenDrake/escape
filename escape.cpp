@@ -34,7 +34,7 @@ int main() {
                 // }
                 Actor *here = m.getActor(x, y);
                 if (here) {
-                    mvaddch(y,x*2,'@');
+                    mvaddch(y,x*2,here->getType() == 0 ? '@' : 'g');
                 } else {
                     int tileId = m.tile(x,y);
                     Tile &tile = Map::tileTypes[tileId];

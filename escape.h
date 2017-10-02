@@ -61,6 +61,10 @@ public:
     :type(type)
     { }
 
+    int getType() const {
+        return type;
+    }
+
     void setPos(int x, int y) {
         myX = x;
         myY = y;
