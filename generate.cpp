@@ -181,3 +181,30 @@ void generate_randomMap(Map &map) {
     }
 }
 
+void makeMap(Map &map, Actor *player) {
+    do {
+        generate_randomMap(map);
+
+        int startX, startY;
+        do {
+            startX = rand() % map.width();
+            startY = rand() % map.height();
+        } while (map.tile(startX,startY) != tileFloor);
+        map.tile(startX,startY,4);
+
+        map.calcDist(startX,startY);
+        int maxX = -1, maxY = -1, maxDist = 0;
+        for (int y = 0; y < map.height(); ++y) {
+            for (int x = 0; x < map.width(); ++x) {
+                int distHere = map.getDist(x,y);
+                if (distHere > maxDist && distHere != 2000000) {
+                    maxDist = distHere;
+                    maxX = x;
+                    maxY = y;
+                }
+            }
+        }
+        map.tile(maxX,maxY,tileUp);
+        map.setActor(player, startX, startY);
+    } while (map.coverage() < 35);
+}

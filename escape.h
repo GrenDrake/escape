@@ -120,3 +120,5 @@ private:
     int *tiles;
     int *dist;
 };
+
+void makeMap(Map &map, Actor *player);

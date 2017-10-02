@@ -10,39 +10,12 @@
 
 #include "escape.h"
 
-void generate_randomMap(Map &map);
-
 int main() {
     srand(time(0));
 
     Map m(31,21);
     Actor *player = new Actor(0);
-
-    do {
-        generate_randomMap(m);
-
-        int startX, startY;
-        do {
-            startX = rand() % m.width();
-            startY = rand() % m.height();
-        } while (m.tile(startX,startY) != tileFloor);
-        m.tile(startX,startY,4);
-
-        m.calcDist(startX,startY);
-        int maxX = -1, maxY = -1, maxDist = 0;
-        for (int y = 0; y < m.height(); ++y) {
-            for (int x = 0; x < m.width(); ++x) {
-                int distHere = m.getDist(x,y);
-                if (distHere > maxDist && distHere != 2000000) {
-                    maxDist = distHere;
-                    maxX = x;
-                    maxY = y;
-                }
-            }
-        }
-        m.tile(maxX,maxY,tileUp);
-        m.setActor(player, startX, startY);
-    } while (m.coverage() < 35);
+    makeMap(m, player);
 
 
     initscr();
