@@ -150,7 +150,7 @@ void generate_randomMap(Map &map) {
                 here.shift(d, 1);
             }
             if (validPositionForDoor(map, here.x(), here.y())) {
-                map.tile(here.x(),here.y(),tileDoor);
+                map.tile(here.x(),here.y(), rand() % 3 == 0 ? tileFakeWall : tileDoor);
             }
         }
     }
