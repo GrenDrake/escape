@@ -32,10 +32,6 @@ private:
 
 class Tile {
 public:
-    Tile(const char *name, int glyph, int opaque, int solid)
-    : name(name), glyph(glyph), opaque(opaque), solid(solid)
-    { }
-
     const char *name;
     int glyph;
     int opaque;
@@ -103,120 +99,21 @@ public:
         return myHeight;
     }
 
-    int tile(int x, int y) const {
-        int c = coord(x,y);
-        if (c < 0) {
-            return -1;
-        }
-        return tiles[c];
-    }
-    void tile(int x, int y, int newTile) {
-        int c = coord(x,y);
-        if (c < 0) {
-            return;
-        }
-        tiles[c] = newTile;
-    }
-
-    void setActor(Actor *actor, int x, int y) {
-        actors.insert(actor);
-        actor->setPos(x,y);
-    }
-    Actor* getActor(int x, int y) {
-        for (Actor *actor : actors) {
-            if (actor->x() == x && actor->y() == y) {
-                return actor;
-            }
-        }
-        return nullptr;
-    }
-    bool tryMoveActor(Actor *who, Direction d) {
-        if (actors.count(who) == 0) {
-            return false;
-        }
-
-        Coord c(who->x(), who->y());
-        c.shift(d);
-
-        Tile &tiledef = tileTypes[tile(c.x(), c.y())];
-        if (tiledef.solid) {
-            return false;
-        }
-        if (getActor(c.x(), c.y())) {
-            return false;
-        }
-
-        setActor(who, c.x(), c.y());
-        return true;
-    }
-
-    int coverage() const {
-        int count = 0;
-        for (int y = 0; y < myHeight; ++y) {
-            for (int x = 0; x < myWidth; ++x) {
-                if (tile(x,y) == 0) {
-                    ++count;
-                }
-            }
-        }
-        return 100 - (100 * count / (myHeight * myWidth));
-    }
-
-    void clearDist() {
-        for (int y = 0; y < myHeight; ++y) {
-            for (int x = 0; x < myWidth; ++x) {
-                dist[coord(x,y)] = 2000000;
-            }
-        }
-    }
-    int getDist(int x, int y) const {
-        return dist[coord(x,y)];
-    }
-
-    void calcDist(int startx, int starty) {
-        clearDist();
-        calcDist_helper(startx, starty, 0);
-    }
-    void calcDist_helper(int x, int y, int curDist) {
-        if (dist[coord(x,y)] < curDist) {
-            return;
-        }
-        dist[coord(x,y)] = curDist;
-        Direction d = Direction::North;
-        do {
-            Coord here(x,y);
-            here.shift(d,1);
-            if (tile(here.x(),here.y()) != 0 && dist[coord(here.x(),here.y())] > curDist) {
-                calcDist_helper(here.x(), here.y(), curDist+1);
-            }
-            d = rotate(d);
-        } while (d != Direction::North);
-    }
-
-    void floodfill(int startx, int starty) {
-        clearDist();
-        floodfill_helper(startx, starty);
-    }
-    void floodfill_helper(int x, int y) {
-        dist[coord(x,y)] = 0;
-        Direction d = Direction::North;
-        do {
-            Coord here(x,y);
-            here.shift(d,1);
-            if (tile(here.x(),here.y()) != 0 && dist[coord(here.x(),here.y())] == 2000000) {
-                floodfill_helper(here.x(), here.y());
-            }
-            d = rotate(d);
-        } while (d != Direction::North);
-    }
+    int tile(int x, int y) const;
+    void tile(int x, int y, int newTile);
+    void setActor(Actor *actor, int x, int y);
+    Actor* getActor(int x, int y);
+    bool tryMoveActor(Actor *who, Direction d);
+    int coverage(int forTile = 0) const;
+    void clearDist();
+    int getDist(int x, int y) const;
+    void calcDist(int startx, int starty);
+    void floodfill(int startx, int starty);
 
 private:
-    int coord(int x, int y) const {
-        if (x < 0 || y < 0 || x >= myWidth || y >= myHeight) {
-            return -1;
-        }
-        return x + y * myWidth;
-    }
+    void calcDist_helper(int x, int y, int curDist);
+    void floodfill_helper(int x, int y);
+    int coord(int x, int y) const;
 
     std::unordered_set<Actor*> actors;
     int myWidth, myHeight;

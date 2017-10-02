@@ -12,54 +12,6 @@
 
 void generate_randomMap(Map &map);
 
-Direction rotate(Direction d) {
-    switch(d) {
-        case Direction::North:  return Direction::East;
-        case Direction::East:   return Direction::South;
-        case Direction::South:  return Direction::West;
-        case Direction::West:   return Direction::North;
-    }
-    return Direction::North;
-}
-
-Direction randomDirection() {
-    switch(rand()%4) {
-        case 0: return Direction::East;
-        case 1: return Direction::South;
-        case 2: return Direction::West;
-        case 3: return Direction::North;
-    }
-    return Direction::North;
-}
-
-void Coord::shift(Direction d, int distance) {
-    switch(d) {
-        case Direction::East:   myX += distance;    break;
-        case Direction::West:   myX -= distance;    break;
-        case Direction::North:  myY -= distance;    break;
-        case Direction::South:  myY += distance;    break;
-    }
-}
-void Coord::shift(int dx, int dy) {
-    myX += dx;
-    myY += dy;
-}
-
-Tile Map::tileTypes[] = {
-    //  name            glyph   opaque  solid
-    {   "wall",         '#',    true,   true },
-    {   "floor",        '.',    false,  false },
-    {   "door",         '+',    true,   false },
-    {   "stair down",   '>',    false,  false },
-    {   "stair up",     '<',    false,  false },
-    {   "window",       '=',    false,  true },
-    {   "fake wall",    '%',    true,   false },
-
-    {   "unknown",      '?',    true,   true }
-};
-
-
-
 int main() {
     srand(time(0));
 
