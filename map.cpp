@@ -1,4 +1,4 @@
-
+#include <deque>
 
 #include "escape.h"
 
@@ -125,7 +125,7 @@ int Map::getDist(int x, int y) const {
 void Map::calcDist(int startx, int starty) {
     for (int i = 0; i < tileCount; ++i) {
         dist[i] = -1;
-}
+    }
 
     std::deque<Coord> tilelist;
     tilelist.push_back(Coord(startx,starty));
@@ -136,8 +136,8 @@ void Map::calcDist(int startx, int starty) {
 
         int distHere = getDist(here.x(), here.y());
         int newDist = distHere + 1;
-    Direction d = Direction::North;
-    do {
+        Direction d = Direction::North;
+        do {
             Coord there = here;
             there.shift(d, 1);
             if (!solid(there.x(),there.y())) {
@@ -146,28 +146,35 @@ void Map::calcDist(int startx, int starty) {
                     setDist(there.x(), there.y(), newDist);
                     tilelist.push_back(there);
                 }
-        }
-        d = rotate(d);
-    } while (d != Direction::North);
-}
+            }
+            d = rotate(d);
+        } while (d != Direction::North);
+    }
 }
 
 void Map::floodfill(int startx, int starty) {
-    clearDist();
-    floodfill_helper(startx, starty);
-}
+    for (int i = 0; i < tileCount; ++i) {
+        dist[i] = 0;
+    }
 
-void Map::floodfill_helper(int x, int y) {
-    dist[coord(x,y)] = 0;
-    Direction d = Direction::North;
-    do {
-        Coord here(x,y);
-        here.shift(d,1);
-        if (tile(here.x(),here.y()) != 0 && dist[coord(here.x(),here.y())] == 2000000) {
-            floodfill_helper(here.x(), here.y());
-        }
-        d = rotate(d);
-    } while (d != Direction::North);
+    std::deque<Coord> tilelist;
+    tilelist.push_back(Coord(startx,starty));
+    setDist(startx, starty, 1);
+    while (!tilelist.empty()) {
+        Coord here = tilelist.front();
+        tilelist.pop_front();
+
+        Direction d = Direction::North;
+        do {
+            Coord there = here;
+            there.shift(d, 1);
+            if (!solid(there.x(),there.y()) && getDist(there.x(), there.y()) == 0) {
+                setDist(there.x(), there.y(), 1);
+                tilelist.push_back(there);
+            }
+            d = rotate(d);
+        } while (d != Direction::North);
+    }
 }
 
 int Map::coord(int x, int y) const {

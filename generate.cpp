@@ -150,7 +150,7 @@ void generate_removeDisconnected(Map &map, int startX, int startY) {
     map.floodfill(startX,startY);
     for (int y = 0; y < map.height(); ++y) {
         for (int x = 0; x < map.width(); ++x) {
-            if (!map.solid(x,y) && map.getDist(x,y) != 0) {
+            if (!map.solid(x,y) && map.getDist(x,y) == 0) {
                 map.tile(x,y,tileWall);
             }
         }

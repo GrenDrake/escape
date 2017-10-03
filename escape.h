@@ -124,7 +124,6 @@ public:
     void floodfill(int startx, int starty);
 
 private:
-    void floodfill_helper(int x, int y);
     int coord(int x, int y) const;
 
     std::unordered_set<Actor*> actors;
