@@ -114,36 +114,47 @@ void Map::clearDist() {
         }
     }
 }
+
+void Map::setDist(int x, int y, int newValue) {
+    dist[coord(x,y)] = newValue;
+}
 int Map::getDist(int x, int y) const {
     return dist[coord(x,y)];
 }
 
 void Map::calcDist(int startx, int starty) {
-    clearDist();
-    calcDist_helper(startx, starty, 0);
+    for (int i = 0; i < tileCount; ++i) {
+        dist[i] = -1;
+}
+
+    std::deque<Coord> tilelist;
+    tilelist.push_back(Coord(startx,starty));
+    setDist(startx, starty, 0);
+    while (!tilelist.empty()) {
+        Coord here = tilelist.front();
+        tilelist.pop_front();
+
+        int distHere = getDist(here.x(), here.y());
+        int newDist = distHere + 1;
+    Direction d = Direction::North;
+    do {
+            Coord there = here;
+            there.shift(d, 1);
+            if (!solid(there.x(),there.y())) {
+                int distThere = getDist(there.x(), there.y());
+                if (distThere == -1 || distThere > newDist) {
+                    setDist(there.x(), there.y(), newDist);
+                    tilelist.push_back(there);
+                }
+        }
+        d = rotate(d);
+    } while (d != Direction::North);
+}
 }
 
 void Map::floodfill(int startx, int starty) {
     clearDist();
     floodfill_helper(startx, starty);
-}
-
-
-
-void Map::calcDist_helper(int x, int y, int curDist) {
-    if (dist[coord(x,y)] < curDist) {
-        return;
-    }
-    dist[coord(x,y)] = curDist;
-    Direction d = Direction::North;
-    do {
-        Coord here(x,y);
-        here.shift(d,1);
-        if (!solid(here.x(),here.y()) && dist[coord(here.x(),here.y())] > curDist) {
-            calcDist_helper(here.x(), here.y(), curDist+1);
-        }
-        d = rotate(d);
-    } while (d != Direction::North);
 }
 
 void Map::floodfill_helper(int x, int y) {

@@ -86,10 +86,10 @@ public:
     static Tile tileTypes[];
 
     Map(int width, int height)
-    : myWidth(width), myHeight(height)
+    : myWidth(width), myHeight(height), tileCount(width*height)
     {
-        tiles = new int[width*height];
-        dist = new int[width*height];
+        tiles = new int[tileCount];
+        dist = new int[tileCount];
     }
     ~Map() {
         delete[] tiles;
@@ -118,17 +118,17 @@ public:
     bool tryMoveActor(Actor *who, Direction d);
     int coverage(int forTile = 0) const;
     void clearDist();
+    void setDist(int x, int y, int newValue);
     int getDist(int x, int y) const;
     void calcDist(int startx, int starty);
     void floodfill(int startx, int starty);
 
 private:
-    void calcDist_helper(int x, int y, int curDist);
     void floodfill_helper(int x, int y);
     int coord(int x, int y) const;
 
     std::unordered_set<Actor*> actors;
-    int myWidth, myHeight;
+    const int myWidth, myHeight, tileCount;
     int *tiles;
     int *dist;
 };
