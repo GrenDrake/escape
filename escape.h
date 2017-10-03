@@ -103,6 +103,14 @@ public:
         return myHeight;
     }
 
+    bool solid(int x, int y) const {
+        int tileId = tile(x,y);
+        if (tileId < 0 || tileId >= tileUnknown) {
+            return false;
+        }
+        return tileTypes[tileId].solid;
+    }
+
     int tile(int x, int y) const;
     void tile(int x, int y, int newTile);
     void setActor(Actor *actor, int x, int y);

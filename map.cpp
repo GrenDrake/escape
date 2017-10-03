@@ -139,7 +139,7 @@ void Map::calcDist_helper(int x, int y, int curDist) {
     do {
         Coord here(x,y);
         here.shift(d,1);
-        if (tile(here.x(),here.y()) != 0 && dist[coord(here.x(),here.y())] > curDist) {
+        if (!solid(here.x(),here.y()) && dist[coord(here.x(),here.y())] > curDist) {
             calcDist_helper(here.x(), here.y(), curDist+1);
         }
         d = rotate(d);
