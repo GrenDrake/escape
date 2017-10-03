@@ -48,6 +48,19 @@ Tile Map::tileTypes[] = {
     {   "unknown",      '?',    true,   true }
 };
 
+ActorType Map::actorTypes[] = {
+    //  name            glyph   baseAttack  baseMagic   baseHealth  baseAC  unarmedMin  unarmedMax  aiIdent
+    {   "player",       '@',    0,          0,          5,          10,     1,          3,          -1  },
+    {   "goblin",       'g',    -2,         -2,         3,          7,      1,          2,          -1  },
+};
+
+Actor::Actor(int type)
+:type(type)
+{
+    data = &Map::actorTypes[type];
+    curHealth = data->baseHealth;
+}
+
 int Map::tile(int x, int y) const {
     int c = coord(x,y);
     if (c < 0) {

@@ -51,18 +51,26 @@ const int tileWorkTemp  = 99;
 
 class ActorType {
 public:
-private:
-    int a;
+    const char *name;
+    int glyph;
+    int baseAttack;
+    int baseMagic;
+    int baseHealth;
+    int baseAC;
+    int unarmedMin;
+    int unarmedMax;
+    int aiIdent;
 };
 
 class Actor {
 public:
-    Actor(int type)
-    :type(type)
-    { }
+    Actor(int type);
 
     int getType() const {
         return type;
+    }
+    const ActorType* getData() const {
+        return data;
     }
 
     void setPos(int x, int y) {
@@ -76,13 +84,20 @@ public:
         return myY;
     }
 
+    int getCurHealth() const {
+        return curHealth;
+    }
+
 private:
+    const ActorType *data;
     int type;
     int myX, myY;
+    int curHealth;
 };
 
 class Map {
 public:
+    static ActorType actorTypes[];
     static Tile tileTypes[];
 
     Map(int width, int height)
