@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <cstdlib>
+#include <ctime>
 
 #include <png.h>
 
@@ -15,24 +16,37 @@ TileColor tileColours[] = {
     { 0, 0, 0 },        // tileWall
     { 255, 255, 255 },  // tileFloor
     { 160, 82, 45 },    // tileDoor
-    { 127, 0, 127 },  // tileDown
-    { 0, 127, 127 },  // tileUp
+    { 127, 0, 127 },    // tileDown
+    { 0, 127, 127 },    // tileUp
     { 127, 127, 255 },  // tileWindow
     { 127, 127, 127 },  // tileFakeWall
     { 255, 0, 255 },    // tileUnknown
 };
 
 int main() {
-    srand(time(0));
     char filenamebuf[128];
 
-    int sizes[] = {
-        63, 0
-    };
-    for (int i = 0; sizes[i] != 0; ++i) {
-        sprintf(filenamebuf, "out%03d.png", i);
-        doMap(filenamebuf, sizes[i], sizes[i]);
+    long seed = time(0);
+    // long seed = 1507020633;
+    const int mapCount = 16;
+    const int mapWidth = 63;
+    const int mapHeight = 63;
+
+    clock_t bigStart = clock();
+    for (int i = 0; i < mapCount; ++i) {
+        srand(seed);
+        sprintf(filenamebuf, "maps/out%03d.png", i+1);
+        printf("Creating map %d with seed %ld...", i+1, seed);
+        clock_t start = clock();
+        doMap(filenamebuf, mapWidth, mapHeight);
+        clock_t diff = clock() - start;
+        double duration = diff / (double)(CLOCKS_PER_SEC);
+        printf("  (took %lf seconds)\n", duration);
+        ++seed;
     }
+    clock_t fullDiff = clock() - bigStart;
+    double duration = fullDiff / (double)(CLOCKS_PER_SEC);
+    printf("\nFull Process took %lf seconds.\n", duration);
 
 }
 
