@@ -4,6 +4,7 @@
 
 Direction rotate(Direction d) {
     switch(d) {
+        case Direction::Here:   return Direction::Here;
         case Direction::North:  return Direction::East;
         case Direction::East:   return Direction::South;
         case Direction::South:  return Direction::West;
@@ -24,6 +25,7 @@ Direction randomDirection() {
 
 void Coord::shift(Direction d, int distance) {
     switch(d) {
+        case Direction::Here:   break;
         case Direction::East:   myX += distance;    break;
         case Direction::West:   myX -= distance;    break;
         case Direction::North:  myY -= distance;    break;
@@ -51,7 +53,7 @@ Tile Map::tileTypes[] = {
 ActorType Map::actorTypes[] = {
     //  name            glyph   baseAttack  baseMagic   baseHealth  baseAC  unarmedMin  unarmedMax  aiIdent
     {   "player",       '@',    0,          0,          5,          10,     1,          3,          -1  },
-    {   "goblin",       'g',    -2,         -2,         3,          7,      1,          2,          -1  },
+    {   "goblin",       'g',    -2,         -2,         3,          7,      1,          2,          0  },
 };
 
 Actor::Actor(int type)
@@ -195,4 +197,13 @@ int Map::coord(int x, int y) const {
         return -1;
     }
     return x + y * myWidth;
+}
+
+void Map::endTurn() {
+    for (Actor *who : actors) {
+        if (who->getData()->aiIdent >= 0) {
+            Direction d = randomDirection();
+            tryMoveActor(who, d);
+        }
+    }
 }

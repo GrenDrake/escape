@@ -10,6 +10,27 @@
 
 #include "escape.h"
 
+
+bool tryMove(Map &map, Actor *player, Direction dir) {
+    bool result = false;
+
+    Coord c(player->x(), player->y());
+    c.shift(dir, 1);
+    if (map.getActor(c.x(), c.y())) {
+        result = true;
+    } else {
+        result = map.tryMoveActor(player, dir);
+    }
+
+    if (result) {
+        map.endTurn();
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
 int main() {
     srand(time(0));
 
@@ -65,13 +86,15 @@ int main() {
         if (key == 'Q') {
             break;
         } else if (key == KEY_LEFT) {
-            m.tryMoveActor(player, Direction::West);
+            tryMove(m, player, Direction::West);
         } else if (key == KEY_RIGHT) {
-            m.tryMoveActor(player, Direction::East);
+            tryMove(m, player, Direction::East);
         } else if (key == KEY_UP) {
-            m.tryMoveActor(player, Direction::North);
+            tryMove(m, player, Direction::North);
         } else if (key == KEY_DOWN) {
-            m.tryMoveActor(player, Direction::South);
+            tryMove(m, player, Direction::South);
+        } else if (key == ' ') {
+            m.endTurn();
         }
 
     }

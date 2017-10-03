@@ -1,7 +1,7 @@
 #include <unordered_set>
 
 enum class Direction {
-    North, East, South, West
+    Here, North, East, South, West
 };
 
 Direction rotate(Direction d);
@@ -137,6 +137,7 @@ public:
     int getDist(int x, int y) const;
     void calcDist(int startx, int starty);
     void floodfill(int startx, int starty);
+    void endTurn();
 
 private:
     int coord(int x, int y) const;
