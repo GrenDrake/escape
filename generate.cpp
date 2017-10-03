@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <cstdlib>
 
 #include <deque>
@@ -15,6 +16,37 @@ public:
     int w, h;
 };
 
+bool validPositionForDoor(Map &map, int x, int y);
+
+void generate_clear(Map &map);
+void generate_rooms(Map &map, std::vector<Room> &rooms);
+void generate_maze(Map &map, int startX, int startY);
+void generate_addDoors(Map &map, const std::vector<Room> &rooms);
+void generate_removeDisconnected(Map &map, int startX, int startY);
+void generate_addExtraDoors(Map &map, int doorCount);
+void generate_randomMap(Map &map, int startX, int startY);
+
+
+bool validPositionForDoor(Map &map, int x, int y) {
+    Coord sideN(x,y);
+    Coord sideS(x,y);
+    Coord sideE(x,y);
+    Coord sideW(x,y);
+    sideN.shift(Direction::North,1);
+    sideS.shift(Direction::South,1);
+    sideE.shift(Direction::East,1);
+    sideW.shift(Direction::West,1);
+
+    if (map.tile(sideN.x(), sideN.y()) == tileWall && map.tile(sideS.x(), sideS.y()) == tileWall
+            && map.tile(sideW.x(), sideW.y()) == tileFloor && map.tile(sideE.x(), sideE.y()) == tileFloor) {
+        return true;
+    }
+    if (map.tile(sideN.x(), sideN.y()) == tileWall && map.tile(sideS.x(), sideS.y()) == tileWall
+            && map.tile(sideW.x(), sideW.y()) == tileFloor && map.tile(sideE.x(), sideE.y()) == tileFloor) {
+        return true;
+    }
+    return false;
+}
 
 void generate_clear(Map &map) {
     for (int y = 0; y < map.width(); ++y) {
@@ -23,7 +55,6 @@ void generate_clear(Map &map) {
         }
     }
 }
-
 
 void generate_rooms(Map &map, std::vector<Room> &rooms) {
     const int roomCount = map.width() / 2;
@@ -60,43 +91,7 @@ void generate_rooms(Map &map, std::vector<Room> &rooms) {
     }
 }
 
-bool validPositionForDoor(Map &map, int x, int y) {
-    Coord sideN(x,y);
-    Coord sideS(x,y);
-    Coord sideE(x,y);
-    Coord sideW(x,y);
-    sideN.shift(Direction::North,1);
-    sideS.shift(Direction::South,1);
-    sideE.shift(Direction::East,1);
-    sideW.shift(Direction::West,1);
-
-    if (map.tile(sideN.x(), sideN.y()) == tileWall && map.tile(sideS.x(), sideS.y()) == tileWall
-            && map.tile(sideW.x(), sideW.y()) == tileFloor && map.tile(sideE.x(), sideE.y()) == tileFloor) {
-        return true;
-    }
-    if (map.tile(sideN.x(), sideN.y()) == tileWall && map.tile(sideS.x(), sideS.y()) == tileWall
-            && map.tile(sideW.x(), sideW.y()) == tileFloor && map.tile(sideE.x(), sideE.y()) == tileFloor) {
-        return true;
-    }
-    return false;
-}
-
-void generate_randomMap(Map &map) {
-    generate_clear(map);
-
-    // add some random rooms to the map
-    std::vector<Room> rooms;
-    generate_rooms(map, rooms);
-
-    // picking a starting point
-    int startX, startY;
-    do {
-        startX = 1 + 2 * (rand() % (map.width() / 2));
-        startY = 1 + 2 * (rand() % (map.height() / 2));
-    } while (map.tile(startX,startY) != 0);
-    map.tile(startX, startY, tileFloor);
-
-    // build a maze outside of the rooms
+void generate_maze(Map &map, int startX, int startY) {
     std::deque<Coord> points;
     points.push_back(Coord(startX,startY));
     while (!points.empty()) {
@@ -125,14 +120,9 @@ void generate_randomMap(Map &map) {
             points.pop_back();
         }
     }
+}
 
-    // find a spot on the map located in one of the corridors
-    do {
-        startX = 1 + 2 * (rand() % (map.width() / 2));
-        startY = 1 + 2 * (rand() % (map.height() / 2));
-    } while (map.tile(startX,startY) != tileFloor);
-
-    // add doors to rooms so the player can actually get into them
+void generate_addDoors(Map &map, const std::vector<Room> &rooms) {
     for (Room room : rooms) {
         for (int y = room.y+1; y < room.y+room.h; ++y) {
             for (int x = room.x+1; x < room.x+room.w; ++x) {
@@ -154,23 +144,21 @@ void generate_randomMap(Map &map) {
             }
         }
     }
+}
 
-    // remove disconnected rooms
+void generate_removeDisconnected(Map &map, int startX, int startY) {
     map.floodfill(startX,startY);
-    for (Room room : rooms) {
-        if (map.getDist(room.x+1,room.y+1) == 0) {
-            continue;
-        }
-
-        for (int y = room.y; y < room.y+room.h; ++y) {
-            for (int x = room.x; x < room.x+room.w; ++x) {
+    for (int y = 0; y < map.height(); ++y) {
+        for (int x = 0; x < map.width(); ++x) {
+            if (!map.solid(x,y) && map.getDist(x,y) != 0) {
                 map.tile(x,y,tileWall);
             }
         }
     }
+}
 
-    // add some random doors and windows
-    for (int i = 0; i < 75; ++i) {
+void generate_addExtraDoors(Map &map, int doorCount) {
+    for (int i = 0; i < doorCount; ++i) {
         int x = rand() % map.width();
         int y = rand() % map.height();
         if (validPositionForDoor(map, x, y)) {
@@ -183,34 +171,44 @@ void generate_randomMap(Map &map) {
     }
 }
 
-void makeMap(Map &map, Actor *player) {
-    do {
-        generate_randomMap(map);
+void generate_randomMap(Map &map, int startX, int startY) {
+    std::vector<Room> rooms;
 
-        int startX, startY;
-        do {
-            startX = rand() % map.width();
-            startY = rand() % map.height();
-        } while (map.tile(startX,startY) != tileFloor);
-        map.tile(startX,startY,4);
+    generate_clear(map);
+    map.tile(startX, startY, tileDown);
 
-        map.calcDist(startX,startY);
-        int maxX = -1, maxY = -1, maxDist = 0;
-        for (int y = 0; y < map.height(); ++y) {
-            for (int x = 0; x < map.width(); ++x) {
-                int distHere = map.getDist(x,y);
-                if (distHere > maxDist && distHere != 2000000) {
-                    maxDist = distHere;
-                    maxX = x;
-                    maxY = y;
-                }
+    generate_rooms(map, rooms);
+    generate_maze(map, startX, startY);
+    generate_addDoors(map, rooms);
+    generate_removeDisconnected(map, startX, startY);
+    generate_addExtraDoors(map, 75);
+
+    map.calcDist(startX,startY);
+    int maxX = -1, maxY = -1, maxDist = 0;
+    for (int y = 0; y < map.height(); ++y) {
+        for (int x = 0; x < map.width(); ++x) {
+            if (map.solid(x,y)) continue;
+            int distHere = map.getDist(x,y);
+            if (distHere > maxDist) {
+                maxDist = distHere;
+                maxX = x;
+                maxY = y;
             }
         }
-        map.tile(maxX,maxY,tileUp);
+    }
+    fprintf(stderr, "target: %d,%d\n", maxX, maxY);
+    map.tile(maxX,maxY,tileUp);
+}
+
+void makeMap(Map &map, Actor *player) {
+    do {
+        int startX = 1 + 2 * (rand() % (map.width() / 2));
+        int startY = 1 + 2 * (rand() % (map.height() / 2));
+        generate_randomMap(map, startX, startY);
         map.setActor(player, startX, startY);
     } while (map.coverage() < 35);
 
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 0; ++i) {
         int x, y;
         do {
             x = rand() % map.width();
