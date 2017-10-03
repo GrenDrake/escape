@@ -45,9 +45,12 @@ int main() {
         move(23,0);
         clrtoeol();
         if (cx >= 0 && cy >= 0 && cx < m.width() && cy < m.height()) {
-            int tileId = m.tile(cx,cy);
+            int tileId = m.tile(player->x(),player->y());
             Tile &tile = Map::tileTypes[tileId];
-            mvprintw(23,0,"%d,%d - %s (%d) - %d      %d", cx, cy, tile.name, tileId, m.getDist(cx,cy), m.coverage());
+            mvprintw(23,0,  "%d,%d - %s (%d) - dist:%d",
+                            player->x(),    player->y(),
+                            tile.name,      tileId,
+                            m.getDist(player->x(),player->y()));
         }
 
         int key = getch();
