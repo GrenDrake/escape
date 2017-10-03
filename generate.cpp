@@ -196,7 +196,6 @@ void generate_randomMap(Map &map, int startX, int startY) {
             }
         }
     }
-    fprintf(stderr, "target: %d,%d\n", maxX, maxY);
     map.tile(maxX,maxY,tileUp);
 }
 
@@ -208,7 +207,7 @@ void makeMap(Map &map, Actor *player) {
         map.setActor(player, startX, startY);
     } while (map.coverage() < 35);
 
-    for (int i = 0; i < 0; ++i) {
+    for (int i = 0; i < 10; ++i) {
         int x, y;
         do {
             x = rand() % map.width();
