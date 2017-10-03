@@ -27,14 +27,13 @@ int main() {
 
         for (int y = 0; y < m.height(); ++y) {
             for (int x = 0; x < m.width(); ++x) {
-                // if (cx == x && cy == y) {
-                //     attron(A_REVERSE);
-                // } else {
-                //     attroff(A_REVERSE);
-                // }
                 Actor *here = m.getActor(x, y);
                 if (here) {
-                    mvaddch(y,x*2,here->getType() == 0 ? '@' : 'g');
+                    if (here == player) {
+                        attron(A_REVERSE);
+                    }
+                    mvaddch(y,x*2,here->getData()->glyph);
+                    attroff(A_REVERSE);
                 } else {
                     int tileId = m.tile(x,y);
                     Tile &tile = Map::tileTypes[tileId];
@@ -42,6 +41,15 @@ int main() {
                 }
             }
         }
+
+        move(21,0); clrtoeol();
+        mvprintw(21,0, "PLAYER  Atk: %-2d  Mag: %-2d  AC: %-2d  HP: %-2d/%2d",
+                        player->getData()->baseAttack,
+                        player->getData()->baseMagic,
+                        player->getData()->baseAC,
+                        player->getCurHealth(),
+                        player->getData()->baseHealth);
+
         move(23,0);
         clrtoeol();
         if (cx >= 0 && cy >= 0 && cx < m.width() && cy < m.height()) {
